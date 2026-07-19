@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Version>0.1.0</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json"/>
+        <PackageReference Include="NSwag.MSBuild">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <Target Name="NSwag" BeforeTargets="AfterBuild" Condition="'$(ClientGen)'=='True'">
+        <Exec ConsoleToMSBuild="true" ContinueOnError="true" Command="$(NSwagExe_Net80) run nswag.json">
+            <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode"/>
+            <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput"/>
+        </Exec>
+
+        <Message Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' == '0'" Importance="low"/>
+        <Error Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' != '0'"/>
+    </Target>
+
+</Project>
