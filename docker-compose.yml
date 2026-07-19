@@ -1,0 +1,12 @@
+name: urleso-web
+
+services:
+  urleso.web:
+    container_name: urleso-web
+    build:
+      context: .
+    image: urleso.web:latest
+    environment:
+      - API_BASE_ADDRESS=${API_BASE_ADDRESS}
+    ports:
+      - ${WEB_PORT}:8080

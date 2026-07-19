@@ -16,17 +16,16 @@ The API base address for local development is set in [`src/Urleso.Web/wwwroot/ap
 
 ## Docker
 
-```shell
-docker build -t urleso.web:latest .
-```
-
-The container serves the app with nginx on port `8080` and requires the `API_BASE_ADDRESS` environment variable — at startup it regenerates `appsettings.json` from it:
+The app runs in Docker with its own compose file:
 
 ```shell
-docker run -p 6080:8080 -e API_BASE_ADDRESS=http://localhost:6800/ urleso.web:latest
+cp .env.sample .env   # first time only
+docker compose up -d
 ```
 
-The full Urleso stack (API, redirect service, database and this web app) is composed in the [Urleso repository](https://github.com/exqzmepls/Urleso) — its `docker compose` uses the `urleso.web:latest` image built here.
+This builds the image and serves the app with nginx at <http://localhost:6080> (`WEB_PORT`). The container requires the `API_BASE_ADDRESS` environment variable — at startup it regenerates `appsettings.json` from it.
+
+The backend (API, redirect service, database) is composed separately in the [Urleso repository](https://github.com/exqzmepls/Urleso) — run its stack first so the web app has an API to talk to.
 
 ## API client
 

@@ -17,7 +17,7 @@ Quality gates: dotnet-slopwatch after substantial new/refactor/LLM-authored code
 
 Urleso Web is the web UI for [Urleso](https://github.com/exqzmepls/Urleso) (a URL shortener): a standalone Blazor WebAssembly app (.NET 8, MudBlazor) served as static files by nginx in Docker. The browser calls the Urleso API directly; this repo talks to the API only through the generated `Urleso.Api.Client`.
 
-The rest of the system (API, redirect service, database, docker compose) lives in the Urleso repository; its compose file consumes the `urleso.web:latest` image built here.
+The rest of the system (API, redirect service, database) lives in the Urleso repository and is composed there; this repository has its own `docker-compose.yml` that builds and runs just the web container (env vars from `.env`, see `.env.sample`: `WEB_PORT`, `API_BASE_ADDRESS`).
 
 ## Commands
 
@@ -31,8 +31,8 @@ dotnet run --project src/Urleso.Web
 # Regenerate the API client from the vendored OpenAPI document (src/Urleso.Api.Client/swagger.json)
 dotnet build src/Urleso.Api.Client -c Release -p:ClientGen=True
 
-# Build the docker image (used by docker compose in the Urleso repository)
-docker build -t urleso.web:latest .
+# Build and run in docker (cp .env.sample .env first time; backend stack from the Urleso repository must be up)
+docker compose up -d --build
 ```
 
 ## Architecture
