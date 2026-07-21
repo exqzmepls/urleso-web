@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Urleso.Web", "src\Urleso.We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Urleso.Api.Client", "src\Urleso.Api.Client\Urleso.Api.Client.csproj", "{0BAC29E8-5821-447C-814C-7E9EF9344518}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Urleso.Web.Service", "src\Urleso.Web.Service\Urleso.Web.Service.csproj", "{FE5A394E-76AD-41BB-B846-F455D6B98721}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,18 @@ Global
 		{0BAC29E8-5821-447C-814C-7E9EF9344518}.Release|x64.Build.0 = Release|Any CPU
 		{0BAC29E8-5821-447C-814C-7E9EF9344518}.Release|x86.ActiveCfg = Release|Any CPU
 		{0BAC29E8-5821-447C-814C-7E9EF9344518}.Release|x86.Build.0 = Release|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Debug|x64.Build.0 = Debug|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Debug|x86.Build.0 = Debug|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Release|x64.ActiveCfg = Release|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Release|x64.Build.0 = Release|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE5A394E-76AD-41BB-B846-F455D6B98721}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +64,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FAC8C919-2F2E-4700-A3AC-CEB6A3202F48} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{0BAC29E8-5821-447C-814C-7E9EF9344518} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{FE5A394E-76AD-41BB-B846-F455D6B98721} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

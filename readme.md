@@ -2,17 +2,27 @@
 
 Web UI for [Urleso](https://github.com/exqzmepls/Urleso) — a simple URL shortener.
 
-Standalone Blazor WebAssembly app (MudBlazor) served as static files by nginx in Docker. The browser calls the Urleso API directly.
+Blazor WebAssembly app (MudBlazor) served by a thin ASP.NET Core service that also proxies the Urleso API under its own origin. The browser therefore only ever talks to this app.
 
 ## How to run locally
 
-_The Urleso API must be running and allow this app's origin via CORS (see `CORS_ALLOWED_ORIGINS` in the Urleso repository)._
+_The Urleso API must be running (the service proxies to it), but it needs no CORS allowlist._
 
 ```shell
-dotnet run --project src/Urleso.Web
+dotnet run --project src/Urleso.Web.Service
 ```
 
-The API base address for local development is set in [`src/Urleso.Web/wwwroot/appsettings.json`](src/Urleso.Web/wwwroot/appsettings.json) (`http://localhost:6800/` by default).
+This serves the app at <http://localhost:5080> and runs in the `Development` environment — [`src/Urleso.Web.Service/Properties/launchSettings.json`](src/Urleso.Web.Service/Properties/launchSettings.json) sets both.
+
+The API base address for a local run comes from `src/Urleso.Web.Service/appsettings.Development.json`, which points at `http://localhost:6800/` — the API's port published on your host. That file is gitignored, so it stays yours; create it if you do not have one, and edit it to talk to an API somewhere else:
+
+```json
+{
+  "Api": {
+    "BaseAddress": "http://localhost:6800/"
+  }
+}
+```
 
 ## Docker
 
@@ -23,9 +33,11 @@ cp .env.sample .env   # first time only
 docker compose up -d
 ```
 
-This builds the image and serves the app with nginx at <http://localhost:6080> (`WEB_PORT`). The container requires the `API_BASE_ADDRESS` environment variable — at startup it regenerates `appsettings.json` from it.
+This builds the image and serves the app at <http://localhost:6080>. `.env` has just two settings: `WEB_PORT` and `ENVIRONMENT`.
 
-The backend (API, redirect service, database) is composed separately in the [Urleso repository](https://github.com/exqzmepls/Urleso) — run its stack first so the web app has an API to talk to.
+The API address is not an env var — it comes from [`src/Urleso.Web.Service/appsettings.json`](src/Urleso.Web.Service/appsettings.json), which uses `http://urleso.api:6800/`, the API's container name. The service refuses to start if that address is missing or not a valid URL.
+
+The backend (API, redirect service, database) is composed separately in the [Urleso repository](https://github.com/exqzmepls/Urleso) — **run its stack first**. This compose file joins that stack's `urleso_default` network as an external network, so `docker compose up` here fails outright if the backend has never been started.
 
 ## API client
 

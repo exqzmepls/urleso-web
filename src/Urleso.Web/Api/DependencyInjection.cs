@@ -1,29 +1,17 @@
-﻿using Microsoft.Extensions.Options;
 using Urleso.Web.Api.ShortenedUrls;
 
 namespace Urleso.Web.Api;
 
 internal static class DependencyInjection
 {
-    public static IServiceCollection AddApiSettings(this IServiceCollection services)
-    {
-        services.AddOptions<ApiSettings>()
-            .BindConfiguration(ApiSettings.ConfigurationSection)
-            .ValidateDataAnnotations();
-
-        return services;
-    }
-
-    public static IServiceCollection AddApiServices(this IServiceCollection services)
+    /// <param name="baseAddress">The app's own origin; the service proxies "api/*" to the Urleso API.</param>
+    public static IServiceCollection AddApiServices(this IServiceCollection services, string baseAddress)
     {
         services.AddSingleton<IShortenedUrlService, ShortenedUrlService>();
 
         services.AddSingleton<IApiClientFactory, ApiHttpClientFactory>();
-        services.AddHttpClient(ApiHttpClientFactory.HttpClientName, (serviceProvider, client) =>
-        {
-            var apiSettings = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
-            client.BaseAddress = new Uri(apiSettings.BaseAddress);
-        });
+        services.AddHttpClient(ApiHttpClientFactory.HttpClientName,
+            client => client.BaseAddress = new Uri(baseAddress));
 
         return services;
     }

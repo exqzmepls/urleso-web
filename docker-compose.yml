@@ -5,8 +5,16 @@ services:
     container_name: urleso-web
     build:
       context: .
+      dockerfile: src/Urleso.Web.Service/Dockerfile
     image: urleso.web:latest
     environment:
-      - API_BASE_ADDRESS=${API_BASE_ADDRESS}
+      - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT:-Production}
     ports:
       - ${WEB_PORT}:8080
+    networks:
+      - urleso
+
+networks:
+  urleso:
+    name: urleso_default
+    external: true
