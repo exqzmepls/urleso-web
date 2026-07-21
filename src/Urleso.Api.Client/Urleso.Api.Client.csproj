@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <Target Name="NSwag" BeforeTargets="AfterBuild" Condition="'$(ClientGen)'=='True'">
-        <Exec ConsoleToMSBuild="true" ContinueOnError="true" Command="$(NSwagExe_Net80) run nswag.json">
+        <Exec ConsoleToMSBuild="true" ContinueOnError="true" Command="$(NSwagExe_Net100) run nswag.json">
             <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode"/>
             <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput"/>
         </Exec>
