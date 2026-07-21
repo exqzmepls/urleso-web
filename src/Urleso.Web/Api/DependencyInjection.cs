@@ -1,3 +1,4 @@
+using Urleso.Api.Client;
 using Urleso.Web.Api.ShortenedUrls;
 
 namespace Urleso.Web.Api;
@@ -9,9 +10,7 @@ internal static class DependencyInjection
     {
         services.AddSingleton<IShortenedUrlService, ShortenedUrlService>();
 
-        services.AddSingleton<IApiClientFactory, ApiHttpClientFactory>();
-        services.AddHttpClient(ApiHttpClientFactory.HttpClientName,
-            client => client.BaseAddress = new Uri(baseAddress));
+        services.AddUrlesoApiClient(new Uri(baseAddress));
 
         return services;
     }
