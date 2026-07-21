@@ -2,17 +2,25 @@
 
 Web UI for [Urleso](https://github.com/exqzmepls/Urleso) — a simple URL shortener.
 
-Standalone Blazor WebAssembly app (MudBlazor) served as static files by nginx in Docker. The browser calls the Urleso API directly.
+Blazor WebAssembly app (MudBlazor) served by a thin ASP.NET Core service that also proxies the Urleso API under its own origin. The browser therefore only ever talks to this app.
 
 ## How to run locally
 
-_The Urleso API must be running and allow this app's origin via CORS (see `CORS_ALLOWED_ORIGINS` in the Urleso repository)._
+_The Urleso API must be running (the service proxies to it), but it needs no CORS allowlist._
 
 ```shell
-dotnet run --project src/Urleso.Web
+dotnet run --project src/Urleso.Web.Service
 ```
 
-The API base address for local development is set in [`src/Urleso.Web/wwwroot/appsettings.json`](src/Urleso.Web/wwwroot/appsettings.json) (`http://localhost:6800/` by default).
+The API base address defaults to `http://localhost:6800/` from [`src/Urleso.Web.Service/appsettings.json`](src/Urleso.Web.Service/appsettings.json). To point your local run somewhere else, set `Api__BaseAddress` or create `src/Urleso.Web.Service/appsettings.Development.json` — it is gitignored, so it stays yours:
+
+```json
+{
+  "Api": {
+    "BaseAddress": "http://localhost:6800/"
+  }
+}
+```
 
 ## Docker
 
@@ -23,7 +31,9 @@ cp .env.sample .env   # first time only
 docker compose up -d
 ```
 
-This builds the image and serves the app with nginx at <http://localhost:6080> (`WEB_PORT`). The container requires the `API_BASE_ADDRESS` environment variable — at startup it regenerates `appsettings.json` from it.
+This builds the image and serves the app at <http://localhost:6080> (`WEB_PORT`).
+
+The API address is a runtime setting (`API_BASE_ADDRESS` in `.env`, passed as `Api__BaseAddress`), so the same image runs in any environment — changing the address is a restart, not a rebuild. The service refuses to start if the address is missing or not a valid URL.
 
 The backend (API, redirect service, database) is composed separately in the [Urleso repository](https://github.com/exqzmepls/Urleso) — run its stack first so the web app has an API to talk to.
 

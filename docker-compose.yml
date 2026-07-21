@@ -5,8 +5,9 @@ services:
     container_name: urleso-web
     build:
       context: .
+      dockerfile: src/Urleso.Web.Service/Dockerfile
     image: urleso.web:latest
     environment:
-      - API_BASE_ADDRESS=${API_BASE_ADDRESS}
+      - Api__BaseAddress=${API_BASE_ADDRESS:-http://localhost:6800/}
     ports:
       - ${WEB_PORT}:8080
