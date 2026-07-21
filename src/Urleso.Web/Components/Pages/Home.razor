@@ -1,9 +1,9 @@
 ﻿@page "/"
 @implements IDisposable
-@using Urleso.Web.Api.ShortenedUrls
+@using Urleso.Api.Client
 @inject IJSRuntime JsRuntime
 @inject ISnackbar Snackbar
-@inject IShortenedUrlService ShortenedUrlService
+@inject IUrlesoApi ApiClient
 
 <PageTitle>Urleso</PageTitle>
 
@@ -78,17 +78,15 @@
         _isProcessing = true;
 
         Snackbar.Clear();
-        var shortLinkResult = await ShortenedUrlService.ShortenUrlAsync(_longLink!, _cancellationTokenSource.Token);
-        if (shortLinkResult.IsSuccess)
+        var shortenedUrlOptions = new CreateShortUrlRequest(_longLink!); 
+        var response = await ApiClient.CreateShortUrlAsync(shortenedUrlOptions, _cancellationTokenSource.Token);
+        if (response.IsSuccessStatusCode)
         {
-            _shortLink = shortLinkResult.Value;
+            _shortLink = response.Content?.Url;
         }
         else
         {
-            @foreach (var error in shortLinkResult.Errors)
-            {
-                Snackbar.Add(error.Message, Severity.Error);
-            }
+            Snackbar.Add(response.StatusCode?.ToString(), Severity.Error);
         }
 
         _isProcessing = false;
@@ -120,5 +118,4 @@
         _copyShortLinkButtonText = "Copy shortened URL";
         _isShortLinkCopied = false;
     }
-
 }

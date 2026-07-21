@@ -6,13 +6,11 @@ namespace Urleso.Api.Client;
 
 public static class DependencyInjection
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
     {
-        TypeInfoResolver = UrlesoApiJsonContext.Default,
-        PropertyNamingPolicy = null
+        TypeInfoResolver = UrlesoApiJsonContext.Default
     };
 
-    /// <param name="baseAddress">The origin to resolve the API's paths against.</param>
     public static IServiceCollection AddUrlesoApiClient(this IServiceCollection services, Uri baseAddress)
     {
         var settings = new RefitSettings
