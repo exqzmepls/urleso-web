@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-    <PropertyGroup>
-        <Version>0.1.0</Version>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="FluentResults"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"/>

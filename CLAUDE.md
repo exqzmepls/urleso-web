@@ -17,7 +17,7 @@ Quality gates: dotnet-slopwatch after substantial new/refactor/LLM-authored code
 
 Urleso Web is the web UI for [Urleso](https://github.com/exqzmepls/Urleso) (a URL shortener): a Blazor WebAssembly app (.NET 10, MudBlazor) served by a thin ASP.NET Core service that also proxies the API under the app's own origin. The browser only ever talks to this app; the code reaches the API only through the generated `Urleso.Api.Client`.
 
-The rest of the system (API, redirect service, database) lives in the Urleso repository and is composed there; this repository has its own `docker-compose.yml` that builds and runs just the web container (env vars from `.env`, see `.env.sample`: `WEB_PORT`, `API_BASE_ADDRESS`).
+The rest of the system (API, redirect service, database) lives in the Urleso repository and is composed there; this repository has its own `docker-compose.yml` that builds and runs just the web container (env vars from `.env`, see `.env.sample`: `WEB_PORT`, `ENVIRONMENT`). That compose file joins the backend's `urleso_default` network as `external`, so the backend stack must already be up before `docker compose up` here.
 
 ## Commands
 
@@ -43,9 +43,16 @@ docker compose up -d --build
 
 ### Configuration
 
-The service owns all configuration. `src/Urleso.Web.Service/appsettings.json` holds the default `Api:BaseAddress`; override it at runtime with `Api__BaseAddress` (`docker-compose.yml` passes `API_BASE_ADDRESS` from `.env`). `appsettings.Development.json` is gitignored and local to each developer. `ApiSettings` is bound from the `Api` section with `ValidateDataAnnotations().ValidateOnStart()`, so a missing or malformed address fails startup rather than the first request.
+The service owns all configuration, and `Api:BaseAddress` lives only in `appsettings*.json` — `docker-compose.yml` passes no `Api__BaseAddress` override, so `.env` carries just `WEB_PORT` and `ENVIRONMENT`. The two files split along the two ways the app runs:
 
-The WASM client has no configuration of its own and ships no `appsettings*.json`: `Program.cs` points its `HttpClient` at `builder.HostEnvironment.BaseAddress` — the origin the app was served from — and the service proxies `api/*` onward. One image therefore runs in any environment (changing the API address is a restart, not a rebuild), and the API address never reaches the browser.
+- `src/Urleso.Web.Service/appsettings.json` holds `http://urleso.api:6800/` — the API's container name on the backend network. This is what the container uses (`ENVIRONMENT=Production`).
+- `appsettings.Development.json` holds `http://localhost:6800/` for a bare `dotnet run`. It is gitignored, local to each developer, and listed in `.dockerignore` so a developer's copy can never leak into the image through the Dockerfile's `COPY src/ .`.
+
+`ApiSettings` is bound from the `Api` section with `ValidateDataAnnotations().ValidateOnStart()`, so a missing or malformed address fails startup rather than the first request.
+
+`src/Urleso.Web.Service/Properties/launchSettings.json` is committed, not gitignored: it pins `ASPNETCORE_ENVIRONMENT=Development` (and port 5080) for `dotnet run`. Without it the service starts as Production against a non-published build, where `MapStaticAssets()` falls back to a build manifest it cannot serve and every request 404s. The container is unaffected — its image is produced by `dotnet publish`, which emits the publish manifest Production expects.
+
+The WASM client has no configuration of its own and ships no `appsettings*.json`: `Program.cs` points its `HttpClient` at `builder.HostEnvironment.BaseAddress` — the origin the app was served from — and the service proxies `api/*` onward. The API address therefore never reaches the browser.
 
 ### Hosting
 

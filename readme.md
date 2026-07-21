@@ -12,7 +12,9 @@ _The Urleso API must be running (the service proxies to it), but it needs no COR
 dotnet run --project src/Urleso.Web.Service
 ```
 
-The API base address defaults to `http://localhost:6800/` from [`src/Urleso.Web.Service/appsettings.json`](src/Urleso.Web.Service/appsettings.json). To point your local run somewhere else, set `Api__BaseAddress` or create `src/Urleso.Web.Service/appsettings.Development.json` — it is gitignored, so it stays yours:
+This serves the app at <http://localhost:5080> and runs in the `Development` environment — [`src/Urleso.Web.Service/Properties/launchSettings.json`](src/Urleso.Web.Service/Properties/launchSettings.json) sets both.
+
+The API base address for a local run comes from `src/Urleso.Web.Service/appsettings.Development.json`, which points at `http://localhost:6800/` — the API's port published on your host. That file is gitignored, so it stays yours; create it if you do not have one, and edit it to talk to an API somewhere else:
 
 ```json
 {
@@ -31,11 +33,11 @@ cp .env.sample .env   # first time only
 docker compose up -d
 ```
 
-This builds the image and serves the app at <http://localhost:6080> (`WEB_PORT`).
+This builds the image and serves the app at <http://localhost:6080>. `.env` has just two settings: `WEB_PORT` and `ENVIRONMENT`.
 
-The API address is a runtime setting (`API_BASE_ADDRESS` in `.env`, passed as `Api__BaseAddress`), so the same image runs in any environment — changing the address is a restart, not a rebuild. The service refuses to start if the address is missing or not a valid URL.
+The API address is not an env var — it comes from [`src/Urleso.Web.Service/appsettings.json`](src/Urleso.Web.Service/appsettings.json), which uses `http://urleso.api:6800/`, the API's container name. The service refuses to start if that address is missing or not a valid URL.
 
-The backend (API, redirect service, database) is composed separately in the [Urleso repository](https://github.com/exqzmepls/Urleso) — run its stack first so the web app has an API to talk to.
+The backend (API, redirect service, database) is composed separately in the [Urleso repository](https://github.com/exqzmepls/Urleso) — **run its stack first**. This compose file joins that stack's `urleso_default` network as an external network, so `docker compose up` here fails outright if the backend has never been started.
 
 ## API client
 
