@@ -19,9 +19,9 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write # Required for Claude to push its branch
+      pull-requests: write # Required for Claude to open PRs and comment
+      issues: write # Required for Claude to reply on the issue
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
@@ -29,6 +29,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
       - name: Run Claude Code
         id: claude
@@ -40,11 +45,20 @@ jobs:
           additional_permissions: |
             actions: read
 
+          # The skills CLAUDE.md routes .NET work to. Without this the marketplace
+          # is not installed on the runner and .claude/settings.json enables nothing.
+          plugin_marketplaces: |
+            https://github.com/Aaronontheweb/dotnet-skills.git
+          plugins: |
+            dotnet-skills@dotnet-skills
+
+          # There is no interactive user in a workflow run, so anything outside this
+          # list is denied outright rather than prompted for. The GitHub tools the
+          # action needs are always included; these are the extras this repo needs.
+          claude_args: |
+            --allowedTools "Bash(dotnet:*),Bash(git:*),Bash(gh:*),WebFetch,WebSearch"
+            --max-turns 40
+
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
           # prompt: 'Update the pull request description to include a summary of changes.'
-
-          # Optional: Add claude_args to customize behavior and configuration
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
 

@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write # Required to post the review and its inline comments
       issues: read
       id-token: write
 
@@ -31,14 +31,27 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
       - name: Run Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
-          plugins: 'code-review@claude-code-plugins'
+          plugin_marketplaces: |
+            https://github.com/anthropics/claude-code.git
+            https://github.com/Aaronontheweb/dotnet-skills.git
+          plugins: |
+            code-review@claude-code-plugins
+            dotnet-skills@dotnet-skills
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+
+          # Lets the reviewer actually compile the PR instead of reasoning about it.
+          claude_args: |
+            --allowedTools "Bash(dotnet:*),Bash(git:*),Bash(gh:*),WebFetch,WebSearch"
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
