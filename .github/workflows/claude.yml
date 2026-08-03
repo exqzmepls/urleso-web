@@ -52,10 +52,14 @@ jobs:
           plugins: |
             dotnet-skills@dotnet-skills
 
-          # There is no interactive user in a workflow run, so anything outside this
-          # list is denied outright rather than prompted for. The GitHub tools the
-          # action needs are always included; these are the extras this repo needs.
+          # There is no interactive user in a workflow run, so anything that would
+          # prompt is denied outright. --permission-mode auto lets everything run and
+          # has a classifier vet each action instead; the allow rules below stay
+          # useful because a rule match skips that extra round-trip. Auto mode needs
+          # Sonnet 4.6+/Opus 4.6+/Fable 5, hence the explicit --model.
           claude_args: |
+            --permission-mode auto
+            --model claude-opus-5
             --allowedTools "Bash(dotnet:*),Bash(git:*),Bash(gh:*),WebFetch,WebSearch"
             --max-turns 40
 
