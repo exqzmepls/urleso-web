@@ -1,6 +1,4 @@
-﻿<CascadingValue Value="false" Name="UsePopoverProvider">
-    <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" @ref="@_mudThemeProvider" Theme="MyTheme"/>
-</CascadingValue>
+﻿<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" @ref="@_mudThemeProvider" Theme="MyTheme"/>
 
 @code {
 
@@ -9,33 +7,27 @@
 
     public static MudTheme MyTheme => new()
     {
-        Palette = new PaletteLight
+        PaletteLight = new PaletteLight
         {
             Primary = Colors.Blue.Default,
-            Secondary = Colors.Grey.Lighten1
+            Secondary = Colors.Gray.Lighten1
         },
         PaletteDark = new PaletteDark
         {
             Primary = Colors.LightGreen.Darken3,
-            Secondary = Colors.Grey.Default
+            Secondary = Colors.Gray.Default
         }
     };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // The provider only starts watching for system changes on its first render; the initial
+        // value still has to be read once. Subsequent changes flow back through @bind-IsDarkMode.
         if (firstRender)
         {
-            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
-            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            _isDarkMode = await _mudThemeProvider.GetSystemDarkModeAsync();
             StateHasChanged();
         }
-    }
-
-    private Task OnSystemPreferenceChanged(bool newValue)
-    {
-        _isDarkMode = newValue;
-        StateHasChanged();
-        return Task.CompletedTask;
     }
 
 }

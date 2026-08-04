@@ -30,15 +30,15 @@
                             <MudTextField @bind-Value="_longLink" Clearable="true" Immediate="true" InputMode="InputMode.url" InputType="InputType.Url" Label="Your long link" Required="true" RequiredError="Long link is required!" T="string" Variant="Variant.Outlined"></MudTextField>
                         </MudForm>
 
-                        <MudButton Color="Color.Primary" DisableElevation="true" OnClick="@(ShortenLongLinkAsync)" Size="Size.Medium" Variant="Variant.Filled">Shorten URL</MudButton>
+                        <MudButton Color="Color.Primary" DropShadow="false" OnClick="@(ShortenLongLinkAsync)" Size="Size.Medium" Variant="Variant.Filled">Shorten URL</MudButton>
                     }
                     else
                     {
                         <MudText>Long link: <MudLink Color="Color.Secondary" Href="@_longLink" Target="_blank" Underline="Underline.Always">@_longLink</MudLink></MudText>
                         <MudTextField InputType="InputType.Url" @bind-Text="_shortLink" Label="Your shortened URL" ReadOnly="true" T="string" Variant="Variant.Outlined"></MudTextField>
                         <MudStack Row="true">
-                            <MudButton Color="Color.Secondary" DisableElevation="true" FullWidth="true" OnClick="@(GoBackToLongLinkInput)" Size="Size.Medium" Variant="Variant.Outlined">Shorten another link</MudButton>
-                            <MudButton Color="Color.Primary" Disabled="_isShortLinkCopied" DisableElevation="true" EndIcon="@_copyShortLinkButtonIcon" FullWidth="true" IconSize="Size.Large" OnClick="@(CopyShortLinkToClipboardAsync)" Size="Size.Medium" Variant="Variant.Outlined">@_copyShortLinkButtonText</MudButton>
+                            <MudButton Color="Color.Secondary" DropShadow="false" FullWidth="true" OnClick="@(GoBackToLongLinkInput)" Size="Size.Medium" Variant="Variant.Outlined">Shorten another link</MudButton>
+                            <MudButton Color="Color.Primary" Disabled="_isShortLinkCopied" DropShadow="false" EndIcon="@_copyShortLinkButtonIcon" FullWidth="true" IconSize="Size.Large" OnClick="@(CopyShortLinkToClipboardAsync)" Size="Size.Medium" Variant="Variant.Outlined">@_copyShortLinkButtonText</MudButton>
                         </MudStack>
                     }
                 </MudStack>
@@ -69,7 +69,7 @@
 
     private async Task ShortenLongLinkAsync()
     {
-        await _longLinkForm.Validate();
+        await _longLinkForm.ValidateAsync();
         if (!_longLinkForm.IsValid)
         {
             return;
@@ -86,7 +86,8 @@
         }
         else
         {
-            Snackbar.Add(response.StatusCode?.ToString(), Severity.Error);
+            // StatusCode is null when no response was received at all (e.g. the API is unreachable).
+            Snackbar.Add(response.StatusCode?.ToString() ?? "Request failed", Severity.Error);
         }
 
         _isProcessing = false;

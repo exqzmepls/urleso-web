@@ -1,7 +1,7 @@
 <Project>
     <ItemGroup>
         <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.10"/>
-        <PackageVersion Include="MudBlazor" Version="6.17.0"/>
+        <PackageVersion Include="MudBlazor" Version="9.7.0"/>
         <PackageVersion Include="Refit" Version="13.1.0"/>
         <PackageVersion Include="Refit.HttpClientFactory" Version="13.1.0"/>
         <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0"/>
