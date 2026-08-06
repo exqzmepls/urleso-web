@@ -6,27 +6,27 @@ on:
   pull_request_review_comment:
     types: [created]
   issues:
-    types: [opened, assigned]
-  pull_request_review:
-    types: [submitted]
+    types: [opened]
 
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      github.actor == 'exqzmepls' && (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      )
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
-      contents: write # Required for Claude to push its branch
-      pull-requests: write # Required for Claude to open PRs and comment
-      issues: write # Required for Claude to reply on the issue
+      contents: write
+      pull-requests: write
+      issues: write
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -34,6 +34,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/Directory.Packages.props') }}
+          restore-keys: nuget-${{ runner.os }}-
 
       - name: Run Claude Code
         id: claude
@@ -52,16 +59,6 @@ jobs:
           plugins: |
             dotnet-skills@dotnet-skills
 
-          # There is no interactive user in a workflow run, so anything that would
-          # prompt is denied outright. --permission-mode auto lets everything run and
-          # has a classifier vet each action instead; the allow rules below stay
-          # useful because a rule match skips that extra round-trip. Auto mode needs
-          # Sonnet 4.6+/Opus 4.6+/Fable 5, hence the explicit --model.
           claude_args: |
-            --permission-mode auto
             --model claude-opus-5
-            --allowedTools "Bash(dotnet:*),Bash(git:*),Bash(gh:*),WebFetch,WebSearch"
-
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
-
+            --allowedTools "Bash(dotnet:*),Bash(git:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh issue comment:*),Bash(gh run view:*),Bash(gh search:*),WebFetch,WebSearch,mcp__github_ci__get_ci_status,mcp__github_ci__get_workflow_run_details,mcp__github_ci__download_job_log"
