@@ -1,0 +1,42 @@
+name: Build and Publish
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('src/Directory.Packages.props') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Urleso.Web.sln
+
+      - name: Build
+        run: dotnet build Urleso.Web.sln --no-restore -c Release
+
+      - name: Publish
+        run: dotnet publish src/Urleso.Web.Service --no-restore -c Release -o "${RUNNER_TEMP}/publish"
